@@ -1,4 +1,4 @@
-import { Actor, CollisionType, Color, Engine, Font, Text, vec } from "excalibur"
+import { Actor, CollisionType, Color, Engine, Font, FontUnit, Sound, Loader, Label, Text, vec } from "excalibur"
 
 // 1 - Criar uma instancia de Engine que representa o jogo
 const game = new Engine({
@@ -120,19 +120,32 @@ listaBlocos.forEach(bloco => {
 // Adicionando a pontuacao
 let pontos = 0
 
-const textoPontos = new Text({
-	text: "Hello World",
-	font: new Font({ size: 20 })
+// Label = Text + Actor
+const textoPontos = new Label({
+	text: pontos.toString(),
+	font: new Font({
+		size: 40,
+		color: Color.White,
+		strokeColor: Color.Black,
+		unit: FontUnit.Px
+	}),
+	pos: vec(600, 500)
 })
 
-const objetoTexto = new Actor({
-	x: game.drawWidth - 80,
-	y: game.drawHeight - 15
-})
+game.add(textoPontos)
+//const textoPontos = new Text({
+//text: "Hello World",
+//font: new Font({ size: 20 })
+//})
 
-objetoTexto.graphics.use(textoPontos)
+//const objetoTexto = new Actor({
+//x: game.drawWidth - 80,
+//y: game.drawHeight - 15
+//})
 
-game.add(objetoTexto)
+//objetoTexto.graphics.use(textoPontos)
+
+//game.add(objetoTexto)
 
 let colidindo: boolean = false
 
@@ -144,6 +157,14 @@ bolinha.on("collisionstart", (event) => {
 	if (listaBlocos.includes(event.other)) {
 		// Destruir o bloco colidido
 		event.other.kill()
+		// Adiciona um ponto
+		pontos++
+
+		// Atualiza o valor do placar - TextoPontos
+		textoPontos.text = pontos.toString()
+
+		console.log(pontos);
+
 	}
 
 	// Rebater a bolinha - Inverter as direcoes 
@@ -155,7 +176,7 @@ bolinha.on("collisionstart", (event) => {
 		colidindo = true
 		// interseccao.x e interseccao.y
 		// O maoir representa o eixo onde houve o contato
-		if (Math.abs(interseccao.x) > Math.abs(interseccao.y) ) {
+		if (Math.abs(interseccao.x) > Math.abs(interseccao.y)) {
 			//bolinha.vel.x = -bolinha.vel.x 
 			//bolinha.vel.x *= -1
 			bolinha.vel.x = bolinha.vel.x * -1
@@ -173,13 +194,17 @@ bolinha.on("collisionend", () => {
 })
 
 bolinha.on("exitviewport", () => {
-	alert("SIFU-DEU HERMANO")
+	sound.play(1.0);
+	alert("SIFU-DEU HERMANO, QUE TISTREZA!!! ^_^")
 	window.location.reload()
 })
+
+const sound = new Sound('/sound_effects/Death-Game-Over-5.wav');
+const loader = new Loader([sound]);
 
 
 // Insere a bolinha no game
 game.add(bolinha)
 
 // Inicia o game
-game.start()
+await game.start(loader);
