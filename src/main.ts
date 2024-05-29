@@ -44,6 +44,21 @@ setTimeout(() => {
 
 bolinha.body.collisionType = CollisionType.Passive
 
+let coresBolinha = [
+	Color.Black,
+	Color.Chartreuse,
+	Color.Cyan,
+	Color.Green,
+	Color.Magenta,
+	Color.Orange,
+	Color.Red,
+	Color.Rose,
+	Color.White,
+	Color.Yellow
+]
+
+let numeroCores = coresBolinha.length
+
 // 6 - Fazer a bolinha rebater na parede
 bolinha.on("postupdate", () => {
 	// Se a bolinha colidir com o lado esquerdo
@@ -157,8 +172,31 @@ bolinha.on("collisionstart", (event) => {
 	if (listaBlocos.includes(event.other)) {
 		// Destruir o bloco colidido
 		event.other.kill()
+		// Executar o som
+		baleandoblocoSound.play(1.0)
+
 		// Adiciona um ponto
 		pontos++
+
+		// Mudar a cor da bolinha
+		bolinha.color = coresBolinha[Math.trunc(Math.random() * numeroCores)]
+
+		// Math.random -> 0 - 1 * numeroCores -> 10
+		// 0.5 * 10 = 5
+		//0.3 * 10 = 3
+		//0.873 * 10 = 8.73
+
+		//Math.trunc() -> Retorna somente a porcao inteira de um numero
+
+		// Muda a cor da bolinha com a cor do bloco atingido por ela
+		bolinha.color = event.other.color
+
+
+		// Se acabarem os blocos, mostrar mensagem de vitoria
+		if (pontos == 15) {
+			alert("Bom, trabalho, soldado!!! ^-^")
+			window.location.reload()
+		}
 
 		// Atualiza o valor do placar - TextoPontos
 		textoPontos.text = pontos.toString()
@@ -191,16 +229,32 @@ bolinha.on("collisionstart", (event) => {
 
 bolinha.on("collisionend", () => {
 	colidindo = false
+	pancadaSound.play(1.0)
 })
 
 bolinha.on("exitviewport", () => {
-	sound.play(1.0);
-	alert("SIFU-DEU HERMANO, QUE TISTREZA!!! ^_^")
-	window.location.reload()
+
+	fuckshitSound.play(1.0)
+		.then(() => {
+			gameoverSound.play(1.0);
+
+		})
+		.then(() => {
+			alert("SIFU-DEU HERMANO, QUE TISTREZA!!! ._.")
+			window.location.reload()
+		})
+
+
 })
 
-const sound = new Sound('/sound_effects/Death-Game-Over-5.wav');
-const loader = new Loader([sound]);
+// Adiciona som ao game
+const pancadaSound = new Sound('/sound_effects/330316-Impact_Metal_Pole_Square_Medium_Muted_Wide_Hard_05.wav');
+const baleandoblocoSound = new Sound('/sound_effects/M4A1_-Single_Shot_-Interior-05.wav');
+
+const fuckshitSound = new Sound('/sound_effects/Defeat-Fuck_Shit-Medium_Distant.wav');
+const gameoverSound = new Sound('/sound_effects/Death-Game-Over-5.wav');
+
+const loader = new Loader([pancadaSound, baleandoblocoSound, fuckshitSound, gameoverSound]);
 
 
 // Insere a bolinha no game
